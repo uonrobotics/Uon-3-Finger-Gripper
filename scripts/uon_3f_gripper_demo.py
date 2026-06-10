@@ -45,7 +45,7 @@ def main():
     gripper = create_gripper()
 
     try:
-        # 하드웨어 연결 시도
+        # 하드웨어 연결
         if not gripper.connect():
             print("[Error] Failed to connect to gripper")
             return 1
@@ -62,15 +62,15 @@ def main():
         time.sleep(2.0)
 
         print("[System] Gripper stroke: 1500", flush=True)
-        gripper.stroke(1500)
+        gripper.stroke(1500, 50)
         time.sleep(2.0)
 
         print("[System] Gripper stroke: 1000", flush=True)
-        gripper.stroke(1000)
+        gripper.stroke(1000, 50)
         time.sleep(2.0)
 
         print("[System] Gripper stroke: 500", flush=True)
-        gripper.stroke(500)
+        gripper.stroke(500, 50)
         time.sleep(2.0)
 
         print("[System] Gripper stroke: 0", flush=True)
