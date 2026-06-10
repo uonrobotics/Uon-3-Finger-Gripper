@@ -1,20 +1,44 @@
 import time
 import sys
-import os
+from pathlib import Path
 
-# 프로젝트 루트 디렉토리를 path에 추가하여 dxl_gripper를 찾을 수 있게 합니다.
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.append(str(PROJECT_ROOT))
 
 from dxl_gripper.uon_3f_gripper import uon_3f_gripper
 
-def create_gripper():
-    # 생성된 인스턴스를 반환(return)해야 main 함수에서 사용할 수 있습니다.
-    return uon_3f_gripper(
-        stroke_length         = 1800,
-        stroke_min            = 0,
-        stroke_disable_offset = 100,
-        grasping_force_limit  = 1188,
-    )
+GRIPPER_CONFIG_PATH = PROJECT_ROOT / "config" / "gripper_config.yaml"
+
+
+def load_gripper_config(config_path=GRIPPER_CONFIG_PATH):
+    config = {}
+    with open(config_path, "r", encoding="utf-8") as config_file:
+        for line_number, line in enumerate(config_file, start=1):
+            line = line.split("#", 1)[0].strip()
+            if not line:
+                continue
+            if ":" not in line:
+                raise ValueError(f"Invalid config line {line_number}: {line}")
+
+            key, value = line.split(":", 1)
+            key = key.strip()
+            value = value.strip()
+            if not key or not value:
+                raise ValueError(f"Invalid config line {line_number}: {line}")
+
+            try:
+                config[key] = int(value)
+            except ValueError as exc:
+                raise ValueError(
+                    f"Config value for '{key}' must be an integer: {value}"
+                ) from exc
+
+    return config
+
+
+def create_gripper(config_path=GRIPPER_CONFIG_PATH):
+    config = load_gripper_config(config_path)
+    return uon_3f_gripper(**config)
 
 def main():
     # 클래스 인스턴스 생성

@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 import sys
-import os
 import threading
 import time
 import tkinter as tk
+from pathlib import Path
 from tkinter import ttk, messagebox
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.dirname(current_dir)
-if project_root not in sys.path:
-    sys.path.append(project_root)
-if current_dir not in sys.path:
-    sys.path.append(current_dir)
+current_dir = Path(__file__).resolve().parent
+project_root = current_dir.parent
+if str(project_root) not in sys.path:
+    sys.path.append(str(project_root))
+if str(current_dir) not in sys.path:
+    sys.path.append(str(current_dir))
 
 try:
     from dxl_gripper.uon_3f_gripper import uon_3f_gripper
@@ -22,15 +22,44 @@ except ImportError:
     except:
         pass
 
+GRIPPER_CONFIG_PATH = project_root / "config" / "gripper_config.yaml"
+
+
+def load_gripper_config(config_path=GRIPPER_CONFIG_PATH):
+    config = {}
+    with open(config_path, "r", encoding="utf-8") as config_file:
+        for line_number, line in enumerate(config_file, start=1):
+            line = line.split("#", 1)[0].strip()
+            if not line:
+                continue
+            if ":" not in line:
+                raise ValueError(f"Invalid config line {line_number}: {line}")
+
+            key, value = line.split(":", 1)
+            key = key.strip()
+            value = value.strip()
+            if not key or not value:
+                raise ValueError(f"Invalid config line {line_number}: {line}")
+
+            try:
+                config[key] = int(value)
+            except ValueError as exc:
+                raise ValueError(
+                    f"Config value for '{key}' must be an integer: {value}"
+                ) from exc
+
+    return config
+
+
 class GripperTkApp(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("UON 3F Gripper Direct Controller")
         self.geometry("450x450")
 
-        # 그리퍼 기본 설정값
-        self.max_stroke = 1800
-        self.max_force = 1188
+        self.gripper_config = load_gripper_config()
+        self.max_stroke = self.gripper_config["stroke_min"] + self.gripper_config["stroke_length"]
+        self.max_force = self.gripper_config["grasping_force_limit"]
 
         # 실시간 상태 변수
         self.current_pos_val = 0
@@ -97,12 +126,7 @@ class GripperTkApp(tk.Tk):
 
     def connect_gripper(self):
         try:
-            self.gripper = uon_3f_gripper(
-                stroke_length         = self.max_stroke,
-                stroke_min            = 0,
-                stroke_disable_offset = 100,
-                grasping_force_limit  = self.max_force,
-            )
+            self.gripper = uon_3f_gripper(**self.gripper_config)
 
             if self.gripper.connect():
                 self.gripper.enable()
