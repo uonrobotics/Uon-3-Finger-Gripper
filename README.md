@@ -28,32 +28,31 @@
 
 ## Installation
 
-> [!NOTE]
-> ROS2가 설치되어 있어야 합니다.
-
 > [!IMPORTANT]
 > USB 권한 설정을 반드시 해야합니다. 터미널에 다음 명령어를 입력 후 재부팅을 해주세요.\
 > `sudo usermod -aG dialout $USER` \
 > `sudo chmod 666 /dev/ttyUSB0`
 
-
+### Virtual Environment
+1. 파이썬 가상환경을 생성합니다.
+    ```shell
+    # 파이썬 가상환경 생성
+    python3 -m venv .venv
+    ```
+   
+2. 파이썬 가상환경을 활성화합니다.
+    ```shell
+    # 파이썬 가상환경 활성화
+    source .venv/bin/activate
+    ```
 
 ### Dependencies
 
-1. 제어에 필요한 패키지 들을 설치합니다 (DynamixelSDK, Serial..)
-    ```shell
-    sudo rosdep init
-    rosdep update
-    rosdep install --from-paths src --ignore-src -r -y
-    ```
+```shell
+# 패키지 설치
+pip install -r requirements.txt
+```
 
-### Build
-
-2. ros2 패키지를 빌드합니다
-    ```shell
-    colcon build --packages-select uon_3f_gripper
-    source install/setup.bash
-    ```
 
 <br />
 
@@ -65,11 +64,7 @@
 > 그리퍼의 상태를 확인합니다.
 
 ```shell
-ros2 launch uon_3f_gripper uon_3f_gripper_ping.launch.py 
-
-# or
-
-ros2 launch uon_3f_gripper uon_3f_gripper_ping.launch.py dxl_id:=0 device_name:=/dev/ttyUSB0 baudrate:=2000000
+python scripts/uon_3f_gripper_ping.py 
 ```
 
 |핑 실행 예시|
@@ -84,7 +79,7 @@ ros2 launch uon_3f_gripper uon_3f_gripper_ping.launch.py dxl_id:=0 device_name:=
 
 ```shell
 # 데모 실행
-ros2 launch uon_3f_gripper uon_3f_gripper_demo.launch.py 
+python scripts/uon_3f_gripper_demo.py 
 ```
 
 |               데모 실행 예시                |
@@ -104,28 +99,6 @@ ros2 launch uon_3f_gripper uon_3f_gripper_demo.launch.py
 > [!TIP]
 > 그리퍼의 힘을 조절하려면 max_effort값을 조절하세요.
 > max_effort값이 높을 수록 힘과 반응성이 높아 집니다. 반대로 작을 수록 반응성은 낮아지지만 딸기 같은 물체를 손상 없이 집을 수 있습니다.
-
-
-1. 그리퍼 노드를 실행합니다
-    ```shell
-    # 그리퍼 노드 실행
-    ros2 launch uon_3f_gripper uon_3f_gripper_node.launch.py 
-    ```
-
-2. 다른 터미널에서 아래 명령어를 입력해 토픽을 보냅니다
-    ```shell
-    # 토픽 명령 실행 (닫음)
-    ros2 topic pub --once /uon/gripper_3f/command control_msgs/msg/GripperCommand "{position: 0.0, max_effort: 50.0}"
-    
-    # 토픽 명령 실행 (열음)
-    ros2 topic pub --once /uon/gripper_3f/command control_msgs/msg/GripperCommand "{position: 1800.0, max_effort: 50.0}"
-    ```
-
-
-|               토픽 명령 예시                |
-|:-------------------------------------:|
-| ![node.gif](docs/screenshot/node.gif) |
-
 
 <br />
 

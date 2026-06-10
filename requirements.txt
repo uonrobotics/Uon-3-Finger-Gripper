@@ -1,0 +1,3 @@
+dynamixel-sdk
+pyserial
+rich
