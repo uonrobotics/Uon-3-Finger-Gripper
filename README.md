@@ -163,6 +163,10 @@ ros2 launch uon_3f_gripper uon_3f_gripper_ui.launch.py
 |:-------------------------------------:|
 | ![img6.gif](docs/screenshot/img6.gif) |
 
+|               파지력 변화 예시               |
+|:-------------------------------------:|
+| ![img7.gif](docs/screenshot/img7.gif) |
+
 
 <br />
 
