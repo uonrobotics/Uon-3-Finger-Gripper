@@ -5,7 +5,7 @@
     <img src="docs/screenshot/img.png" alt="Logo">
   </a>
 
-<h1 align="center">UON ROBOTICS 3 Fingger Gripper</h1>
+<h1 align="center">UON ROBOTICS 3 Finger Gripper</h1>
   <p align="center">
     ROS2 Library for 3-Finger Gripper Control
   </p>
