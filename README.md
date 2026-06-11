@@ -17,7 +17,6 @@
 <br />
 
 ## Features
-- ![drawing.png](docs/screenshot/drawing.png)
 - ![img1.jpg](docs/screenshot/img1.jpg)
 - ![img2.jpg](docs/screenshot/img2.jpg)
 - ![img3.jpg](docs/screenshot/img3.jpg)
