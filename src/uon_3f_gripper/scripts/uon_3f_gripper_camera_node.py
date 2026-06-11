@@ -4,11 +4,9 @@ import rclpy
 from rclpy.node import Node
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 
-# ROS 2 메시지 및 OpenCV 변환 라이브러리
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 
-# Intel RealSense Python API
 import pyrealsense2 as rs
 import numpy as np
 
@@ -17,10 +15,10 @@ class CameraRunNode(Node):
     def __init__(self):
         super().__init__('camera_run')
 
-        # 콜백 그룹 설정 (타이머가 독립적으로 돌 수 있도록 함)
+        # 콜백 그룹 설정
         self.callback_group = MutuallyExclusiveCallbackGroup()
 
-        # 기본 파라미터 선언 (yaml 파일에서 덮어씌워짐)
+        # 기본 파라미터
         self.declare_parameter('width', 848)
         self.declare_parameter('height', 480)
         self.declare_parameter('fps', 30)
