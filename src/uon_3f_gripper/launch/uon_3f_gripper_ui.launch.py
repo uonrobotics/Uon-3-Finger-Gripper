@@ -20,11 +20,20 @@ def generate_launch_description():
             parameters = [str(config_path)],
         ),
 
-        # GUI 제어 노드
+        # GUI 노드
         Node(
             package    = 'uon_3f_gripper',
             executable = 'gripper_ui',
             name       = 'gripper_ui',
+            output     = 'screen',
+            parameters = [str(config_path)],
+        ),
+
+        # 카메라 노드
+        Node(
+            package    = 'uon_3f_gripper',
+            executable = 'camera_node',
+            name       = 'camera_node',
             output     = 'screen',
             parameters = [str(config_path)],
         ),

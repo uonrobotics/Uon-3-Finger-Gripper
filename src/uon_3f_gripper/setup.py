@@ -52,6 +52,7 @@ setup(
             'gripper_demo   = uon_3f_gripper.scripts.uon_3f_gripper_demo:main',
             'gripper_node   = uon_3f_gripper.scripts.uon_3f_gripper_node:main',
             'gripper_ui     = uon_3f_gripper.scripts.uon_3f_gripper_ui:main',
+            'camera_node    = uon_3f_gripper.scripts.uon_3f_gripper_camera_node:main',
         ],
     },
 )
