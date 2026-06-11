@@ -48,9 +48,13 @@
 
 1. 제어에 필요한 패키지 들을 설치합니다 (DynamixelSDK, Serial..)
     ```shell
+    # ros2 종속성  설치
     sudo rosdep init
     rosdep update
     rosdep install --from-paths src --ignore-src -r -y
+   
+    # 파이썬 패키지 설치
+    pip install -r requirements.txt --break-system-packages
     ```
 
 ### Build
