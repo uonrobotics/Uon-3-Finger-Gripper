@@ -120,13 +120,19 @@ ros2 launch uon_3f_gripper uon_3f_gripper_demo.launch.py
 > max_effort값이 높을 수록 힘과 반응성이 높아 집니다. 반대로 작을 수록 반응성은 낮아지지만 딸기 같은 물체를 손상 없이 집을 수 있습니다.
 
 
-1. 그리퍼 노드를 실행합니다
+1. 그리퍼 노드를 실행합니다.
     ```shell
     # 그리퍼 노드 실행
     ros2 launch uon_3f_gripper uon_3f_gripper_node.launch.py 
     ```
 
-2. 다른 터미널에서 아래 명령어를 입력해 토픽을 보냅니다
+2. 카메라 노드를 실행합니다.
+    ```shell
+    # 카메라 노드 실행
+    ros2 launch uon_3f_gripper uon_3f_gripper_camera_node.launch.py 
+    ```
+
+3. 다른 터미널에서 아래 명령어를 입력해 토픽을 보냅니다.
     ```shell
     # 토픽 명령 실행 (닫음)
     ros2 topic pub --once /uon/gripper_3f/command control_msgs/msg/GripperCommand "{position: 0.0, max_effort: 50.0}"
@@ -162,7 +168,7 @@ ros2 launch uon_3f_gripper uon_3f_gripper_ui.launch.py
 ## Troubleshooting
 
 <details>
-<summary> RealSense D405 설정 테이블</summary>
+<summary> RealSense D405 해상도 테이블</summary>
 
 | Type       | Resolution @ FPS | Format       |
 |------------|------------------|--------------|
