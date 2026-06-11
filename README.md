@@ -42,7 +42,8 @@
 > `sudo usermod -aG dialout $USER` \
 > `sudo chmod 666 /dev/ttyUSB0`
 
-
+> [!IMPORTANT]
+> 카메라 USB는 반드시 3.1 이상이어야 합니다.
 
 ### Dependencies
 
@@ -76,9 +77,7 @@
 
 ```shell
 ros2 launch uon_3f_gripper uon_3f_gripper_ping.launch.py 
-
 # or
-
 ros2 launch uon_3f_gripper uon_3f_gripper_ping.launch.py dxl_id:=0 device_name:=/dev/ttyUSB0 baudrate:=2000000
 ```
 
@@ -140,7 +139,8 @@ ros2 launch uon_3f_gripper uon_3f_gripper_demo.launch.py
 <br />
 
 > [!TIP]
-> GUI를 이용해 그리퍼를 제어하는 예제도 있습니다!
+> GUI를 이용해 그리퍼를 제어하는 예제도 있습니다! \
+> ui 노드를 실행하면 그리퍼와 카메라 노드도 함께 실행됩니다.
 
 ```shell
 # gui 실행
@@ -156,4 +156,170 @@ ros2 launch uon_3f_gripper uon_3f_gripper_ui.launch.py
 
 ## Troubleshooting
 
-- 
+<details>
+<summary> RealSense D405 설정 테이블</summary>
+
+| Type       | Resolution @ FPS | Format       |
+|------------|------------------|--------------|
+| Color      | 1280x720 @ 10fps | format.bgr8  |
+| Color      | 1280x720 @ 10fps | format.bgra8 |
+| Color      | 1280x720 @ 10fps | format.rgb8  |
+| Color      | 1280x720 @ 10fps | format.rgba8 |
+| Color      | 1280x720 @ 10fps | format.yuyv  |
+| Color      | 1280x720 @ 15fps | format.bgr8  |
+| Color      | 1280x720 @ 15fps | format.bgra8 |
+| Color      | 1280x720 @ 15fps | format.rgb8  |
+| Color      | 1280x720 @ 15fps | format.rgba8 |
+| Color      | 1280x720 @ 15fps | format.yuyv  |
+| Color      | 1280x720 @ 5fps  | format.bgr8  |
+| Color      | 1280x720 @ 5fps  | format.bgra8 |
+| Color      | 1280x720 @ 5fps  | format.rgb8  |
+| Color      | 1280x720 @ 5fps  | format.rgba8 |
+| Color      | 1280x720 @ 5fps  | format.yuyv  |
+| Color      | 424x240 @ 15fps  | format.bgr8  |
+| Color      | 424x240 @ 15fps  | format.bgra8 |
+| Color      | 424x240 @ 15fps  | format.rgb8  |
+| Color      | 424x240 @ 15fps  | format.rgba8 |
+| Color      | 424x240 @ 15fps  | format.yuyv  |
+| Color      | 424x240 @ 30fps  | format.bgr8  |
+| Color      | 424x240 @ 30fps  | format.bgra8 |
+| Color      | 424x240 @ 30fps  | format.rgb8  |
+| Color      | 424x240 @ 30fps  | format.rgba8 |
+| Color      | 424x240 @ 30fps  | format.yuyv  |
+| Color      | 424x240 @ 5fps   | format.bgr8  |
+| Color      | 424x240 @ 5fps   | format.bgra8 |
+| Color      | 424x240 @ 5fps   | format.rgb8  |
+| Color      | 424x240 @ 5fps   | format.rgba8 |
+| Color      | 424x240 @ 5fps   | format.yuyv  |
+| Color      | 424x240 @ 60fps  | format.bgr8  |
+| Color      | 424x240 @ 60fps  | format.bgra8 |
+| Color      | 424x240 @ 60fps  | format.rgb8  |
+| Color      | 424x240 @ 60fps  | format.rgba8 |
+| Color      | 424x240 @ 60fps  | format.yuyv  |
+| Color      | 480x270 @ 15fps  | format.bgr8  |
+| Color      | 480x270 @ 15fps  | format.bgra8 |
+| Color      | 480x270 @ 15fps  | format.rgb8  |
+| Color      | 480x270 @ 15fps  | format.rgba8 |
+| Color      | 480x270 @ 15fps  | format.yuyv  |
+| Color      | 480x270 @ 30fps  | format.bgr8  |
+| Color      | 480x270 @ 30fps  | format.bgra8 |
+| Color      | 480x270 @ 30fps  | format.rgb8  |
+| Color      | 480x270 @ 30fps  | format.rgba8 |
+| Color      | 480x270 @ 30fps  | format.yuyv  |
+| Color      | 480x270 @ 5fps   | format.bgr8  |
+| Color      | 480x270 @ 5fps   | format.bgra8 |
+| Color      | 480x270 @ 5fps   | format.rgb8  |
+| Color      | 480x270 @ 5fps   | format.rgba8 |
+| Color      | 480x270 @ 5fps   | format.yuyv  |
+| Color      | 640x480 @ 15fps  | format.bgr8  |
+| Color      | 640x480 @ 15fps  | format.bgra8 |
+| Color      | 640x480 @ 15fps  | format.rgb8  |
+| Color      | 640x480 @ 15fps  | format.rgba8 |
+| Color      | 640x480 @ 15fps  | format.yuyv  |
+| Color      | 640x480 @ 30fps  | format.bgr8  |
+| Color      | 640x480 @ 30fps  | format.bgra8 |
+| Color      | 640x480 @ 30fps  | format.rgb8  |
+| Color      | 640x480 @ 30fps  | format.rgba8 |
+| Color      | 640x480 @ 30fps  | format.yuyv  |
+| Color      | 640x480 @ 5fps   | format.bgr8  |
+| Color      | 640x480 @ 5fps   | format.bgra8 |
+| Color      | 640x480 @ 5fps   | format.rgb8  |
+| Color      | 640x480 @ 5fps   | format.rgba8 |
+| Color      | 640x480 @ 5fps   | format.yuyv  |
+| Color      | 848x480 @ 10fps  | format.bgr8  |
+| Color      | 848x480 @ 10fps  | format.bgra8 |
+| Color      | 848x480 @ 10fps  | format.rgb8  |
+| Color      | 848x480 @ 10fps  | format.rgba8 |
+| Color      | 848x480 @ 10fps  | format.yuyv  |
+| Color      | 848x480 @ 5fps   | format.bgr8  |
+| Color      | 848x480 @ 5fps   | format.bgra8 |
+| Color      | 848x480 @ 5fps   | format.rgb8  |
+| Color      | 848x480 @ 5fps   | format.rgba8 |
+| Color      | 848x480 @ 5fps   | format.yuyv  |
+| Depth      | 1280x720 @ 5fps  | format.z16   |
+| Depth      | 256x144 @ 90fps  | format.z16   |
+| Depth      | 480x270 @ 15fps  | format.z16   |
+| Depth      | 480x270 @ 30fps  | format.z16   |
+| Depth      | 480x270 @ 5fps   | format.z16   |
+| Depth      | 480x270 @ 60fps  | format.z16   |
+| Depth      | 640x360 @ 30fps  | format.z16   |
+| Depth      | 640x480 @ 15fps  | format.z16   |
+| Depth      | 640x480 @ 30fps  | format.z16   |
+| Depth      | 640x480 @ 5fps   | format.z16   |
+| Depth      | 848x480 @ 10fps  | format.z16   |
+| Depth      | 848x480 @ 5fps   | format.z16   |
+| Infrared   | 1280x720 @ 5fps  | format.bgr8  |
+| Infrared   | 1280x720 @ 5fps  | format.bgra8 |
+| Infrared   | 1280x720 @ 5fps  | format.rgb8  |
+| Infrared   | 1280x720 @ 5fps  | format.rgba8 |
+| Infrared   | 1280x720 @ 5fps  | format.uyvy  |
+| Infrared   | 256x144 @ 90fps  | format.bgr8  |
+| Infrared   | 256x144 @ 90fps  | format.bgra8 |
+| Infrared   | 256x144 @ 90fps  | format.rgb8  |
+| Infrared   | 256x144 @ 90fps  | format.rgba8 |
+| Infrared   | 256x144 @ 90fps  | format.uyvy  |
+| Infrared   | 480x270 @ 15fps  | format.bgr8  |
+| Infrared   | 480x270 @ 15fps  | format.bgra8 |
+| Infrared   | 480x270 @ 15fps  | format.rgb8  |
+| Infrared   | 480x270 @ 15fps  | format.rgba8 |
+| Infrared   | 480x270 @ 15fps  | format.uyvy  |
+| Infrared   | 480x270 @ 30fps  | format.bgr8  |
+| Infrared   | 480x270 @ 30fps  | format.bgra8 |
+| Infrared   | 480x270 @ 30fps  | format.rgb8  |
+| Infrared   | 480x270 @ 30fps  | format.rgba8 |
+| Infrared   | 480x270 @ 30fps  | format.uyvy  |
+| Infrared   | 480x270 @ 5fps   | format.bgr8  |
+| Infrared   | 480x270 @ 5fps   | format.bgra8 |
+| Infrared   | 480x270 @ 5fps   | format.rgb8  |
+| Infrared   | 480x270 @ 5fps   | format.rgba8 |
+| Infrared   | 480x270 @ 5fps   | format.uyvy  |
+| Infrared   | 480x270 @ 60fps  | format.bgr8  |
+| Infrared   | 480x270 @ 60fps  | format.bgra8 |
+| Infrared   | 480x270 @ 60fps  | format.rgb8  |
+| Infrared   | 480x270 @ 60fps  | format.rgba8 |
+| Infrared   | 480x270 @ 60fps  | format.uyvy  |
+| Infrared   | 640x360 @ 30fps  | format.bgr8  |
+| Infrared   | 640x360 @ 30fps  | format.bgra8 |
+| Infrared   | 640x360 @ 30fps  | format.rgb8  |
+| Infrared   | 640x360 @ 30fps  | format.rgba8 |
+| Infrared   | 640x360 @ 30fps  | format.uyvy  |
+| Infrared   | 640x480 @ 15fps  | format.bgr8  |
+| Infrared   | 640x480 @ 15fps  | format.bgra8 |
+| Infrared   | 640x480 @ 15fps  | format.rgb8  |
+| Infrared   | 640x480 @ 15fps  | format.rgba8 |
+| Infrared   | 640x480 @ 15fps  | format.uyvy  |
+| Infrared   | 640x480 @ 30fps  | format.bgr8  |
+| Infrared   | 640x480 @ 30fps  | format.bgra8 |
+| Infrared   | 640x480 @ 30fps  | format.rgb8  |
+| Infrared   | 640x480 @ 30fps  | format.rgba8 |
+| Infrared   | 640x480 @ 30fps  | format.uyvy  |
+| Infrared   | 640x480 @ 5fps   | format.bgr8  |
+| Infrared   | 640x480 @ 5fps   | format.bgra8 |
+| Infrared   | 640x480 @ 5fps   | format.rgb8  |
+| Infrared   | 640x480 @ 5fps   | format.rgba8 |
+| Infrared   | 640x480 @ 5fps   | format.uyvy  |
+| Infrared   | 848x480 @ 10fps  | format.bgr8  |
+| Infrared   | 848x480 @ 10fps  | format.bgra8 |
+| Infrared   | 848x480 @ 10fps  | format.rgb8  |
+| Infrared   | 848x480 @ 10fps  | format.rgba8 |
+| Infrared   | 848x480 @ 10fps  | format.uyvy  |
+| Infrared   | 848x480 @ 5fps   | format.bgr8  |
+| Infrared   | 848x480 @ 5fps   | format.bgra8 |
+| Infrared   | 848x480 @ 5fps   | format.rgb8  |
+| Infrared   | 848x480 @ 5fps   | format.rgba8 |
+| Infrared   | 848x480 @ 5fps   | format.uyvy  |
+| Infrared 1 | 1280x720 @ 5fps  | format.y8    |
+| Infrared 1 | 256x144 @ 90fps  | format.y8    |
+| Infrared 1 | 480x270 @ 15fps  | format.y8    |
+| Infrared 1 | 480x270 @ 30fps  | format.y8    |
+| Infrared 1 | 480x270 @ 5fps   | format.y8    |
+| Infrared 1 | 480x270 @ 60fps  | format.y8    |
+| Infrared 1 | 640x360 @ 30fps  | format.y8    |
+| Infrared 1 | 640x480 @ 15fps  | format.y8    |
+| Infrared 1 | 640x480 @ 30fps  | format.y8    |
+| Infrared 1 | 640x480 @ 5fps   | format.y8    |
+| Infrared 1 | 848x480 @ 10fps  | format.y8    |
+| Infrared 1 | 848x480 @ 5fps   | format.y8    |
+
+</details>
+
