@@ -25,25 +25,28 @@
 - <video src="https://github.com/user-attachments/assets/97110521-e818-485e-83ae-95834ed92d9c" autoplay loop muted playsinline width="100%"></video>
 
 
+<br />
 
+> [!NOTE]
+> ROS2 없이 사용하려면 standalone 브렌치를 사용해주세요.
 
 <br />
+
 
 ## Installation
 
 > [!NOTE]
 > ROS2가 설치되어 있어야 합니다.
 
-> [!NOTE]
-> ROS2 없이 사용하려면 standalone 브렌치를 사용해주세요.
-
 > [!IMPORTANT]
-> USB 권한 설정을 반드시 해야합니다. 터미널에 다음 명령어를 입력 후 재부팅을 해주세요.\
-> `sudo usermod -aG dialout $USER` \
-> `sudo chmod 666 /dev/ttyUSB0`
+> - USB 권한 설정을 반드시 설정해주세요. 터미널에 다음 명령어를 입력 후 재부팅을 해주세요.
+>    ```shell
+>    sudo usermod -aG dialout $USER
+>    sudo chmod 666 /dev/ttyUSB0
+>    ```
+> - 카메라는 USB3.1에 장착해야 합니다.
 
-> [!IMPORTANT]
-> 카메라 USB는 반드시 3.1 이상이어야 합니다.
+
 
 ### Dependencies
 
