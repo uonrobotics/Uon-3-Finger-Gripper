@@ -161,7 +161,7 @@ ros2 launch uon_3f_gripper uon_3f_gripper_ui.launch.py
 
 |               GUI 실행 예시               |
 |:-------------------------------------:|
-| ![img5.gif](docs/screenshot/img5.gif) |
+| ![img6.gif](docs/screenshot/img6.gif) |
 
 
 <br />
