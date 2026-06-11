@@ -115,9 +115,6 @@ ros2 launch uon_3f_gripper uon_3f_gripper_demo.launch.py
 > - 토픽 이름 변경이 필요한 경우 config 디렉토리의 [gripper_config.yaml](src/uon_3f_gripper/config/gripper_config.yaml), [camera_config.yaml](src/uon_3f_gripper/config/camera_config.yaml) 파일을 수정하세요.
 > - Realsense D405는 지원하는 카메라 해상도가 정해져 있습니다. 지원하는 해상도 목록은 **[Troubleshooting](#troubleshooting)** 섹션을 참고해 주세요.
 
-> [!TIP]
-> 그리퍼의 힘을 조절하려면 max_effort값을 조절하세요.
-> max_effort값이 높을 수록 힘과 반응성이 높아 집니다. 반대로 작을 수록 반응성은 낮아지지만 딸기 같은 물체를 손상 없이 집을 수 있습니다.
 
 
 1. 그리퍼 노드를 실행합니다.
@@ -162,6 +159,15 @@ ros2 launch uon_3f_gripper uon_3f_gripper_ui.launch.py
 |               GUI 실행 예시               |
 |:-------------------------------------:|
 | ![img6.gif](docs/screenshot/img6.gif) |
+
+
+<br />
+<br />
+
+> [!TIP]
+> 그리퍼의 힘을 조절하려면 max_effort값을 조절하세요.
+> max_effort값이 높을 수록 힘과 반응성이 높아 집니다. 반대로 작을 수록 반응성은 낮아지지만 딸기 같은 물체를 손상 없이 집을 수 있습니다.
+
 
 |               파지력 변화 예시               |
 |:-------------------------------------:|
