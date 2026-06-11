@@ -26,6 +26,7 @@
 
 
 <br />
+<br />
 
 > [!NOTE]
 > ROS2 없이 사용하려면 standalone 브렌치를 사용해주세요.
@@ -52,7 +53,7 @@
 
 1. 제어에 필요한 패키지 들을 설치합니다 (DynamixelSDK, Serial..)
     ```shell
-    # ros2 종속성  설치
+    # ros2 종속성 설치
     sudo rosdep init
     rosdep update
     rosdep install --from-paths src --ignore-src -r -y
@@ -111,7 +112,8 @@ ros2 launch uon_3f_gripper uon_3f_gripper_demo.launch.py
 > 토픽을 이용해 그리퍼를 제어하는 노드를 실행합니다.
 
 > [!TIP]
-> 토픽 이름 변경이 필요한 경우 config 디렉토리의 [gripper_config.yaml](src/uon_3f_gripper/config/gripper_config.yaml)의 내용을 수정하세요.
+> - 토픽 이름 변경이 필요한 경우 config 디렉토리의 [gripper_config.yaml](src/uon_3f_gripper/config/gripper_config.yaml), [camera_config.yaml](src/uon_3f_gripper/config/camera_config.yaml) 파일을 수정하세요.
+> - > - Realsense D405는 지원하는 카메라 해상도가 정해져 있습니다. 지원하는 해상도 목록은 **[Troubleshooting](#troubleshooting)** 섹션을 참고해 주세요.
 
 > [!TIP]
 > 그리퍼의 힘을 조절하려면 max_effort값을 조절하세요.
