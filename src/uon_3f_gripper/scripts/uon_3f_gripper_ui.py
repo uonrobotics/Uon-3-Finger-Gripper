@@ -24,17 +24,17 @@ class GripperTkGuiNode(Node):
         super().__init__('gripper_camera_tk_gui_node')
         self.ui_app = ui_app
 
-        # 멀티스레딩을 위한 콜백 그룹 설정 (이미지 수신과 제어 명령 전송 분리)
+        # 멀티스레딩을 위한 콜백 그룹 설정
         self.image_cb_group = MutuallyExclusiveCallbackGroup()
         self.bridge = CvBridge()
 
-        # YAML 파일에서 설정된 파라미터 선언 및 가져오기 (기존 유지)
+        # YAML 파일에서 설정된 파라미터 선언 및 가져오기
         self.declare_parameter('stroke_length', 1800)
         self.declare_parameter('grasping_force_limit', 1188)
         self.declare_parameter('topc_name', 'uon/gripper_3f/command')
         self.declare_parameter('state_topic_name', 'uon/gripper_3f/state')
 
-        # --- [추가] 카메라 토픽 파라미터 ---
+        # 카메라 토픽 파라미터
         self.declare_parameter('color_topic_name', 'uon/camera/color/image_raw')
         self.declare_parameter('depth_topic_name', 'uon/camera/depth/image_raw')
 
@@ -43,18 +43,17 @@ class GripperTkGuiNode(Node):
         topic_name = self.get_parameter('topc_name').value
         state_topic_name = self.get_parameter('state_topic_name').value
 
-        # --- [추가] 카메라 토픽 이름 가져오기 ---
+        # 카메라 토픽 이름 가져오기
         color_topic = self.get_parameter('color_topic_name').value
         depth_topic = self.get_parameter('depth_topic_name').value
 
-        # 제어 명령 Publisher 생성 (기존 유지)
+        # 제어 명령 Publisher 생성
         self.command_pub = self.create_publisher(GripperCommand, topic_name, 10)
 
-        # 상태 수신 Subscriber 생성 (기존 유지)
+        # 상태 수신 Subscriber 생성
         self.state_sub = self.create_subscription(GripperCommand, state_topic_name, self.state_callback, 10)
 
-        # --- [추가] 카메라 이미지 수신 Subscriber 생성 ---
-        # 큐 사이즈를 1로 설정하여 최신 프레임만 처리 (지연 방지)
+        # 카메라 이미지 수신 Subscriber 생성
         self.color_sub = self.create_subscription(
             Image, color_topic, self.color_image_callback, 1, callback_group=self.image_cb_group
         )
@@ -65,23 +64,21 @@ class GripperTkGuiNode(Node):
         self.get_logger().info(f"[GUI] Subscribing to Color: '{color_topic}', Depth: '{depth_topic}'")
 
     def send_command(self, position, force):
-        """슬라이더 값 변경 시 ROS2 토픽 발행 (기존 유지)"""
+        """슬라이더 값 변경 시 ROS2 토픽 발행"""
         msg = GripperCommand()
         msg.position = float(position)
         msg.max_effort = float(force)
         self.command_pub.publish(msg)
 
     def state_callback(self, msg):
-        """그리퍼 피드백 수신 시 Tkinter UI 데이터 갱신 요청 (기존 유지)"""
+        """그리퍼 피드백 수신 시 Tkinter UI 데이터 갱신 요청"""
         self.ui_app.queue_update_state(msg.position, msg.max_effort)
 
-    # --- [추가] 카메라 콜백 함수들 ---
+    # 카메라 콜백 함수들
     def color_image_callback(self, msg):
         """컬러 이미지 수신 시 OpenCV 배열로 변환하여 UI로 전달"""
         try:
-            # ROS Image 메시지를 OpenCV BGR 이미지로 변환
             cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
-            # GUI에 표시하기 위해 스레드 안전하게 큐에 저장
             self.ui_app.queue_update_color_image(cv_image)
         except Exception as e:
             self.get_logger().warn(f"Failed to convert color image: {e}")
@@ -89,14 +86,12 @@ class GripperTkGuiNode(Node):
     def depth_image_callback(self, msg):
         """깊이 이미지 수신 시 시각화 가능한 배열로 변환하여 UI로 전달"""
         try:
-            # ROS Image 메시지를 OpenCV 16UC1 이미지로 변환
             depth_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
 
-            # 16비트 깊이 데이터를 8비트 컬러 맵으로 시각화 변환 (D405 근거리 특성 반영)
-            # 데이터를 0~255 범위로 정규화 (최대 거리 약 500mm 가정)
-            depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.5), cv2.COLORMAP_JET)
+            depth_normalized = cv2.normalize(depth_image, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
 
-            # GUI에 표시하기 위해 스레드 안전하게 큐에 저장
+            depth_colormap = cv2.applyColorMap(depth_normalized, cv2.COLORMAP_JET)
+
             self.ui_app.queue_update_depth_image(depth_colormap)
         except Exception as e:
             self.get_logger().warn(f"Failed to convert depth image: {e}")
@@ -107,14 +102,13 @@ class GripperTkApp(tk.Tk):
         super().__init__()
         self.title("UON 3F Gripper & Camera Dashboard")
 
-        # --- [수정] 카메라 표시를 위해 창 크기 확대 ---
         self.geometry("1100x550")
 
         self.ros_node = None
         self.current_pos_val = 0.0
         self.current_force_val = 0.0
 
-        # --- [추가] 카메라 이미지 데이터를 담을 변수 (Numpy 배열) ---
+        # 카메라 이미지 데이터를 담을 변수
         self.cv_img_color = None
         self.cv_img_depth = None
 
@@ -122,14 +116,14 @@ class GripperTkApp(tk.Tk):
         self.tk_img_color = None
         self.tk_img_depth = None
 
-        # 초기 슬라이더 최댓값 (기존 유지)
+        # 초기 슬라이더 최댓값기존 유지)
         self.max_stroke = 1800
         self.max_force = 1188
 
         self.init_ui()
 
     def set_ros_node(self, ros_node):
-        """ROS2 노드 생성 시 파라미터 업데이트 (기존 유지)"""
+        """ROS2 노드 생성 시 파라미터 업데이트"""
         self.ros_node = ros_node
         self.max_stroke = self.ros_node.stroke_length
         self.max_force = self.ros_node.grasping_force_limit
@@ -145,29 +139,29 @@ class GripperTkApp(tk.Tk):
         content_frame.pack(fill=tk.BOTH, expand=True)
 
         # ==========================================
-        # 왼쪽 파트: 그리퍼 제어 및 상태 (기존 코드 유지 및 프레임 감싸기)
+        # 왼쪽 파트: 그리퍼 제어 및 상태
         # ==========================================
         control_frame = ttk.LabelFrame(content_frame, text=" Gripper Control & State ", padding="15")
         control_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10))
 
-        # --- 1. Position 제어 슬라이더 (기존 유지) ---
+        # Position 제어 슬라이더
         self.pos_label_var = tk.StringVar(value="Target Position: 0")
         ttk.Label(control_frame, textvariable=self.pos_label_var, font=('Arial', 10, 'bold')).pack(anchor=tk.W, pady=(0, 2))
 
         self.pos_slider = ttk.Scale(control_frame, from_=0, to=self.max_stroke, orient=tk.HORIZONTAL, command=self.on_slider_changed)
         self.pos_slider.pack(fill=tk.X, pady=(0, 15))
 
-        # --- 2. Force 제어 슬라이더 (기존 유지) ---
+        # Force 제어 슬라이더
         self.force_label_var = tk.StringVar(value="Target Force: 0")
         ttk.Label(control_frame, textvariable=self.force_label_var, font=('Arial', 10, 'bold')).pack(anchor=tk.W, pady=(0, 2))
 
         self.force_slider = ttk.Scale(control_frame, from_=0, to=self.max_force, orient=tk.HORIZONTAL, command=self.on_slider_changed)
-        self.force_slider.set(300)  # 초기 힘 설정값
+        self.force_slider.set(50)  # 초기 힘 설정값
         self.force_slider.pack(fill=tk.X, pady=(0, 20))
 
         ttk.Separator(control_frame, orient=tk.HORIZONTAL).pack(fill=tk.X, pady=(0, 15))
 
-        # --- 3. Live Feedback 상태창 (기존 유지) ---
+        # Live Feedback 상태창
         ttk.Label(control_frame, text="[Live Gripper State]", font=('Arial', 11, 'bold')).pack(anchor=tk.W, pady=(0, 10))
 
         self.state_pos_var = tk.StringVar(value="Current Position: 0")
@@ -180,12 +174,12 @@ class GripperTkApp(tk.Tk):
         ttk.Label(control_frame, textvariable=self.state_force_var).pack(anchor=tk.W)
 
         # ==========================================
-        # [추가] 오른쪽 파트: 카메라 이미지 시각화
+        # 오른쪽 파트: 카메라 이미지 시각화
         # ==========================================
         camera_frame = ttk.LabelFrame(content_frame, text=" Live Camera View ", padding="10")
         camera_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
-        # 이미지가 표시될 라벨 생성 (초기값은 검은색 배경)
+        # 이미지가 표시될 라벨 생성
         self.lbl_color = ttk.Label(camera_frame, text="Waiting for Color Image...", anchor=tk.CENTER, background="black", foreground="white")
         self.lbl_color.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=(0, 5))
 
@@ -196,14 +190,14 @@ class GripperTkApp(tk.Tk):
         self.check_ui_updates()
 
     def update_labels(self):
-        """슬라이더 조작 시 상단 텍스트 갱신 (기존 유지)"""
+        """슬라이더 조작 시 상단 텍스트 갱신"""
         pos = int(self.pos_slider.get())
         force = int(self.force_slider.get())
         self.pos_label_var.set(f"Target Position: {pos} / {self.max_stroke}")
         self.force_label_var.set(f"Target Force: {force} / {self.max_force}")
 
     def on_slider_changed(self, event=None):
-        """드래그할 때마다 ROS2 토픽으로 명령 전송 (기존 유지)"""
+        """드래그할 때마다 ROS2 토픽으로 명령 전송"""
         if self.ros_node:
             pos = int(self.pos_slider.get())
             force = int(self.force_slider.get())
@@ -211,11 +205,11 @@ class GripperTkApp(tk.Tk):
             self.ros_node.send_command(pos, force)
 
     def queue_update_state(self, position, force):
-        """그리퍼 상태 데이터 큐잉 (기존 유지)"""
+        """그리퍼 상태 데이터 큐잉"""
         self.current_pos_val = position
         self.current_force_val = force
 
-    # --- [추가] 카메라 이미지 데이터 큐잉 함수들 ---
+    # 카메라 이미지 데이터 큐잉 함수들
     def queue_update_color_image(self, cv_bgr_image):
         """콜백 스레드에서 수신한 OpenCV 이미지를 저장"""
         self.cv_img_color = cv_bgr_image
@@ -225,9 +219,9 @@ class GripperTkApp(tk.Tk):
         self.cv_img_depth = cv_colormap_image
 
     def check_ui_updates(self):
-        """주기적으로 실제 피드백 UI 및 이미지 요소를 변경 (수정)"""
+        """주기적으로 실제 피드백 UI 및 이미지 요소를 변경 """
 
-        # 1. 그리퍼 상태 업데이트 (기존 유지)
+        # 1. 그리퍼 상태 업데이트
         pos = int(self.current_pos_val)
         force = self.current_force_val
 
@@ -235,15 +229,15 @@ class GripperTkApp(tk.Tk):
         self.progress_bar['value'] = pos
         self.state_force_var.set(f"Current Force: {force:.1f} / {self.max_force}")
 
-        # --- [추가] 2. 카메라 이미지 UI 업데이트 ---
-        # 2-1. 컬러 이미지 처리
+        # 2. 카메라 이미지 UI 업데이트
+        # 컬러 이미지 처리
         if self.cv_img_color is not None:
             # OpenCV BGR -> RGB 변환
             rgb_img = cv2.cvtColor(self.cv_img_color, cv2.COLOR_BGR2RGB)
             # PIL Image -> ImageTk 변환
             pil_img = PilImage.fromarray(rgb_img)
 
-            # UI 크기에 맞게 리사이징 (옵션: 속도 저하 시 해상도 낮춤)
+            # UI 크기에 맞게 리사이징
             display_img = pil_img.resize((480, 270), PilImage.Resampling.LANCZOS)
             self.tk_img_color = ImageTk.PhotoImage(image=display_img)
 
@@ -251,9 +245,9 @@ class GripperTkApp(tk.Tk):
             self.lbl_color.configure(image=self.tk_img_color, text="")
             # self.cv_img_color = None # 소모 처리 안 함 (지속 표시)
 
-        # 2-2. 깊이 이미지 처리
+        # 뎁스 이미지 처리
         if self.cv_img_depth is not None:
-            # OpenCV BGR -> RGB 변환 (ApplyColorMap 결과는 BGR임)
+            # OpenCV BGR -> RGB 변환
             rgb_depth = cv2.cvtColor(self.cv_img_depth, cv2.COLOR_BGR2RGB)
             # PIL Image -> ImageTk 변환
             pil_depth = PilImage.fromarray(rgb_depth)
@@ -265,32 +259,28 @@ class GripperTkApp(tk.Tk):
             # 라벨 업데이트
             self.lbl_depth.configure(image=self.tk_img_depth, text="")
 
-        # 50ms 마다 반복 (기존 유지)
+        # 50ms 마다 반복
         self.after(50, self.check_ui_updates)
 
 
 def ros_spin_thread(node):
-    """ROS2 통신 전용 백그라운드 스레드 (기존 유지)"""
+    """ROS2 통신 전용 백그라운드 스레드"""
     rclpy.spin(node)
 
 
 def main():
-    # ROS 2 초기화 (멀티스레드 실행 모드로 변경)
     rclpy.init()
 
     app = GripperTkApp()
     gripper_tk_node = GripperTkGuiNode(app)
     app.set_ros_node(gripper_tk_node)
 
-    # ROS 통신을 위한 스레드 시작 (기존 유지)
-    # 이미지 콜백 그룹이 다르므로 내부적으로 멀티스레드로 동작함
     ros_thread = threading.Thread(target=ros_spin_thread, args=(gripper_tk_node,), daemon=True)
     ros_thread.start()
 
     try:
         app.mainloop()
     finally:
-        # 종료 처리 (기존 유지)
         gripper_tk_node.destroy_node()
         rclpy.shutdown()
 
