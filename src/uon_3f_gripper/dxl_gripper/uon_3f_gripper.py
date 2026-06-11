@@ -80,13 +80,13 @@ class uon_3f_gripper:
             self.dxl.write(self.id_0, 'goal current', self._clamp_force(force))
             self.dxl.ACK_write_mode_all()
 
-    def stroke(self, pos, force=50):
+    def stroke(self, pos, max_effort=50):
         if self.flag_enable:
             self.dxl.FnF_write_mode_all()
             self.dxl.write(self.id_0, 'goal position', self._clamp_stroke(pos))
-            if self.last_force != force:
-                self.dxl.write(self.id_0, 'goal current', self._clamp_force(force))
-                self.last_force = force
+            if self.last_force != max_effort:
+                self.dxl.write(self.id_0, 'goal current', self._clamp_force(max_effort))
+                self.last_force = max_effort
 
             self.dxl.ACK_write_mode_all()
 

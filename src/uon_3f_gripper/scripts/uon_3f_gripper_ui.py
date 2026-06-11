@@ -152,7 +152,7 @@ class GripperTkApp(tk.Tk):
         self.pos_slider.pack(fill=tk.X, pady=(0, 15))
 
         # Force 제어 슬라이더
-        self.force_label_var = tk.StringVar(value="Target Force: 0")
+        self.force_label_var = tk.StringVar(value="Max effort: 0")
         ttk.Label(control_frame, textvariable=self.force_label_var, font=('Arial', 10, 'bold')).pack(anchor=tk.W, pady=(0, 2))
 
         self.force_slider = ttk.Scale(control_frame, from_=0, to=self.max_force, orient=tk.HORIZONTAL, command=self.on_slider_changed)
