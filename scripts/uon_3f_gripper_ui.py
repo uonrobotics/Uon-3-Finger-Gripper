@@ -6,6 +6,11 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import ttk, messagebox
 
+import cv2
+import pyrealsense2 as rs
+import numpy as np
+from PIL import Image, ImageTk
+
 current_dir = Path(__file__).resolve().parent
 project_root = current_dir.parent
 if str(project_root) not in sys.path:
@@ -23,6 +28,7 @@ except ImportError:
         pass
 
 GRIPPER_CONFIG_PATH = project_root / "config" / "gripper_config.yaml"
+CAMERA_CONFIG_PATH = project_root / "config" / "camera_config.yaml"
 
 
 def load_gripper_config(config_path=GRIPPER_CONFIG_PATH):
@@ -50,16 +56,44 @@ def load_gripper_config(config_path=GRIPPER_CONFIG_PATH):
 
     return config
 
+def load_camera_config(config_path=CAMERA_CONFIG_PATH):
+    config = {}
+    try:
+        with open(config_path, "r", encoding="utf-8") as config_file:
+            for line_number, line in enumerate(config_file, start=1):
+                line = line.split("#", 1)[0].strip()
+                if not line:
+                    continue
+                if ":" not in line:
+                    continue
+
+                key, value = line.split(":", 1)
+                key = key.strip()
+                value = value.strip()
+
+                value = value.strip("'\"")
+
+                if value.isdigit():
+                    config[key] = int(value)
+                else:
+                    config[key] = value
+    except FileNotFoundError:
+        print(f"[Warning] Camera config file not found at {config_path}. Using defaults.")
+
+    return config
+
 
 class GripperTkApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("UON 3F Gripper Direct Controller")
-        self.geometry("450x450")
+        self.title("UON 3F Gripper & Camera Controller")
+        self.geometry("900x850")
 
         self.gripper_config = load_gripper_config()
         self.max_stroke = self.gripper_config["stroke_min"] + self.gripper_config["stroke_length"]
         self.max_force = self.gripper_config["grasping_force_limit"]
+
+        self.camera_config = load_camera_config()
 
         # 실시간 상태 변수
         self.current_pos_val = 0
@@ -70,7 +104,12 @@ class GripperTkApp(tk.Tk):
         # 그리퍼 인스턴스
         self.gripper = None
 
+        # 카메라 변수 초기화
+        self.pipeline = None
+        self.camera_running = False
+
         self.init_ui()
+        self.init_camera()  # 카메라 파이프라인 초기화 및 실행
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def init_ui(self):
@@ -116,7 +155,81 @@ class GripperTkApp(tk.Tk):
         self.state_force_var = tk.StringVar(value="Current Force: 0.0")
         ttk.Label(main_frame, textvariable=self.state_force_var).pack(anchor=tk.W)
 
+        # --- 4. Camera Viewer 상태창 ---
+        ttk.Separator(main_frame, orient=tk.HORIZONTAL).pack(fill=tk.X, pady=(15, 15))
+        ttk.Label(main_frame, text="[RealSense Camera View]", font=('Arial', 11, 'bold')).pack(anchor=tk.W, pady=(0, 10))
+
+        # 카메라 화면이 출력될 레이블 (이미지가 이 안에 업데이트 됨)
+        self.camera_label = ttk.Label(main_frame, text="Initializing Camera...")
+        self.camera_label.pack(anchor=tk.CENTER, pady=5)
+
         self.check_ui_updates()
+
+    # ==========================================
+    # 카메라 제어 관련 함수
+    # ==========================================
+    def init_camera(self):
+        """RealSense 카메라 파이프라인 초기화"""
+        try:
+            self.pipeline = rs.pipeline()
+            config = rs.config()
+
+            cam_width = self.camera_config.get("width", 848)
+            cam_height = self.camera_config.get("height", 480)
+            cam_fps = self.camera_config.get("fps", 15)
+
+            # 스트림 설정 (D405)
+            config.enable_stream(rs.stream.color, cam_width, cam_height, rs.format.bgr8, cam_fps)
+            config.enable_stream(rs.stream.depth, cam_width, cam_height, rs.format.z16, cam_fps)
+
+            self.pipeline.start(config)
+            self.camera_running = True
+            print(f"[System] RealSense Camera initialized ({cam_width}x{cam_height} @ {cam_fps}FPS).")
+
+            # 카메라 피드 업데이트 루프 시작
+            self.update_camera_feed()
+
+        except Exception as e:
+            print(f"[System] Failed to start camera: {e}")
+            self.camera_label.config(text=f"Camera Error: {e}")
+
+    def update_camera_feed(self):
+        """지속적으로 카메라 프레임을 읽어와 UI에 업데이트"""
+        if not self.camera_running:
+            return
+
+        try:
+            frames = self.pipeline.poll_for_frames()
+            if not frames:
+                self.after(10, self.update_camera_feed)
+                return
+
+            color_frame = frames.get_color_frame()
+            depth_frame = frames.get_depth_frame()
+
+            if color_frame and depth_frame:
+                color_image = np.asanyarray(color_frame.get_data())
+                depth_image = np.asanyarray(depth_frame.get_data())
+
+                depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
+
+                stacked = np.hstack((color_image, depth_colormap))
+
+                stacked_resized = cv2.resize(stacked, (848, 240))
+
+                img_rgb = cv2.cvtColor(stacked_resized, cv2.COLOR_BGR2RGB)
+                pil_img = Image.fromarray(img_rgb)
+                imgtk = ImageTk.PhotoImage(image=pil_img)
+
+                self.camera_label.imgtk = imgtk
+                self.camera_label.configure(image=imgtk, text="")
+
+        except Exception as e:
+            pass
+
+        # 약 30FPS
+        self.after(30, self.update_camera_feed)
+
 
     def toggle_connection(self):
         if not self.is_connected:
@@ -157,20 +270,17 @@ class GripperTkApp(tk.Tk):
         print("[System] Gripper disconnected.")
 
     def update_gripper_state_loop(self):
-        """하드웨어로부터 실시간 데이터를 읽어오는 백그라운드 루ㅠㅡ"""
+        """하드웨어로부터 실시간 데이터를 읽어오는 백그라운드 루프"""
         while not self.stop_feedback and self.is_connected:
             try:
                 if self.gripper:
-                    #  위치 읽기
                     try:
                         pos = self.gripper.get_position()
                         if pos is not None:
                             self.current_pos_val = pos
                     except (IndexError, TypeError):
-                        # 통신 패킷이 불완전할 때 발생하는 에러 무시
                         pass
 
-                    # 전류(힘) 읽기
                     try:
                         force = self.gripper.get_current()
                         if force is not None:
@@ -179,7 +289,6 @@ class GripperTkApp(tk.Tk):
                         pass
 
             except Exception as e:
-                # print(f"[Debug] Feedback Loop Error: {e}")
                 pass
 
             time.sleep(0.1)
@@ -211,6 +320,11 @@ class GripperTkApp(tk.Tk):
         self.after(50, self.check_ui_updates)
 
     def on_closing(self):
+        self.camera_running = False
+        if self.pipeline:
+            self.pipeline.stop()
+            print("[System] Camera pipeline stopped.")
+
         if self.is_connected:
             self.disconnect_gripper()
         self.destroy()

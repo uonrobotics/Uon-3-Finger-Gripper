@@ -1,3 +1,6 @@
 dynamixel-sdk
 pyserial
 rich
+pyrealsense2
+pillow
+opencv-python

@@ -1,0 +1,5 @@
+width: 848                                       # Width
+height: 480                                      # Height
+fps: 15                                          # FPS
+color_topic_name: 'uon/camera/color/image_raw'   # 컬러 이미지 토픽 이름
+depth_topic_name: 'uon/camera/depth/image_raw'   # Depth 이미지 토픽 이름

@@ -1,4 +1,3 @@
-
 stroke_length: 1700                      # 최대 스트로크 값
 stroke_min: 0                            # 최소 스트로크 값
 stroke_disable_offset: 100               # 스트로크 비활성화 오프셋
